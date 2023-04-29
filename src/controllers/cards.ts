@@ -1,5 +1,11 @@
-import express, { NextFunction, Response, Request } from "express";
-import { Card } from "models/cards";
+import { NextFunction, Response, Request } from 'express';
+import Card from 'models/cards';
+
+const getCards = (req: Request, res: Response, next: NextFunction) => {
+  Card.find({})
+    .then((cards) => res.status(200).send({ data: cards }))
+    .catch(next);
+};
 
 const likeCard = (req: Request, res: Response) =>
   Card.findByIdAndUpdate(
@@ -14,3 +20,5 @@ const dislikeCard = (req: Request, res: Response) =>
     { $pull: { likes: (req as any).user._id } }, // убрать _id из массива
     { new: true }
   );
+
+export { getCards, likeCard, dislikeCard }
