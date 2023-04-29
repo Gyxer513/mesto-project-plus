@@ -2,8 +2,8 @@ import { Response, Request } from 'express';
 import mongoose from 'mongoose';
 import {
   STATUS_OK, BAD_REQUEST, SERVER_ERROR, NOT_FOUND,
-} from 'utils/errors';
-import { CustomRequest } from 'utils/types';
+} from '../utils/errors';
+import { CustomRequest } from '../utils/types';
 import User from '../models/user';
 
 const getUsers = async (req: Request, res: Response) => {
