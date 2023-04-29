@@ -28,10 +28,10 @@ const getUserById = async (req: Request, res: Response) => {
 const createUser = async (req: Request, res: Response) => {
   try {
     const {
-      name, about, avatar, email,
+      name, about, avatar,
     } = req.body;
     await User.create({
-      name, about, avatar, email,
+      name, about, avatar,
     });
     return res.status(200).send({ message: 'Пользователь создан' });
   } catch (error) {
