@@ -1,8 +1,8 @@
 import { Response, Request } from 'express';
 import {
   STATUS_OK, CREATED, BAD_REQUEST, SERVER_ERROR, NOT_FOUND,
-} from 'utils/errors';
-import { CustomRequest } from 'utils/types';
+} from '../utils/errors';
+import { CustomRequest } from '../utils/types';
 import Card from '../models/cards';
 
 const getCards = async (req: Request, res: Response) => {
