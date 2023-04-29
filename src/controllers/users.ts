@@ -37,11 +37,19 @@ const createUser = async (req: Request, res: Response) => {
     const {
       name, about, avatar,
     } = req.body;
+    if (!name && !about && !avatar) {
+      const error = new Error('Переданные данные не корректны');
+      error.name = 'CustomValid';
+      throw error;
+    }
     await User.create({
       name, about, avatar,
     });
     return res.status(200).send({ message: 'Пользователь создан' });
   } catch (error) {
+    if (error instanceof Error && error.name === 'CustomValid') {
+      res.status(400).send({ message: 'некорректные данные' });
+    }
     res.status(500).send({ message: 'ошибка сервера' });
   }
 };
