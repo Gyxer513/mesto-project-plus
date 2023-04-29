@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { CustomRequest } from 'utils/types';
 import cardsRouter from './routes/cards';
 import usersRouter from './routes/users';
+import { NOT_FOUND } from 'utils/errors';
 
 const { PORT = 3000 } = process.env;
 mongoose.set('strictQuery', true);
@@ -22,6 +23,10 @@ app.use((req: CustomRequest, res: Response, next: NextFunction) => {
 
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
+
+app.use((req: CustomRequest, res: Response) => {
+  res.status(NOT_FOUND.code).send(NOT_FOUND.message);
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); // eslint-disable-line
