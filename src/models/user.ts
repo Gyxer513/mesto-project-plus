@@ -17,7 +17,7 @@ const userSchema = new Schema<TUser>({
     type: String,
     required: true,
     inlength: [2, 'Поле должно содержать больше 2 символов'],
-    maxlength: [200, 'Поле должно содержать менее 200 символов'],
+    maxlength: [30, 'Поле должно содержать менее 30 символов'],
   },
   avatar: {
     type: String,
