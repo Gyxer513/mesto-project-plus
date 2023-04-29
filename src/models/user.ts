@@ -12,21 +12,18 @@ const userSchema = new Schema<TUser>({
     required: true,
     minlength: [2, 'Поле должно содержать больше 2 символов'],
     maxlength: [30, 'Поле должно содержать менее 30 символов'],
-    default: 'Жак-Ив-Кусто',
   },
   about: {
     type: String,
     required: true,
     inlength: [2, 'Поле должно содержать больше 2 символов'],
     maxlength: [200, 'Поле должно содержать менее 200 символов'],
-    default: 'Исследователь океана',
   },
   avatar: {
     type: String,
     required: true,
     inlength: [2, 'Поле должно содержать больше 2 символов'],
     maxlength: [200, 'Поле должно содержать менее 200 символов'],
-    default: 'Картинка',
   },
 });
 
