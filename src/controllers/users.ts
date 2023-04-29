@@ -1,13 +1,14 @@
 import { Response, Request } from 'express';
 import mongoose from 'mongoose';
 import User from '../models/user';
+import { SERVER_ERROR } from 'utils/errors';
 
 const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.find({});
     return res.status(200).send(users);
   } catch (error) {
-    res.status(500).send({ message: 'ошибка сервера' });
+    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -28,7 +29,7 @@ const getUserById = async (req: Request, res: Response) => {
     if (error instanceof mongoose.Error.CastError) {
       return res.status(400).send({ message: 'Запрашиваемый пользователь не найден' });
     }
-    res.status(500).send({ message: 'ошибка сервера' });
+    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -50,7 +51,7 @@ const createUser = async (req: Request, res: Response) => {
     if (error instanceof Error && error.name === 'CustomValid') {
       res.status(400).send({ message: 'некорректные данные' });
     }
-    res.status(500).send({ message: 'ошибка сервера' });
+    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
