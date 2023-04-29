@@ -30,7 +30,6 @@ const cardSchema = new Schema<TCard>({
         ref: 'user',
       },
     ],
-    required: true,
     default: [],
   },
   createdAt: {
