@@ -1,9 +1,9 @@
 import express, { Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { CustomRequest } from 'utils/types';
+import { NOT_FOUND } from 'utils/errors';
 import cardsRouter from './routes/cards';
 import usersRouter from './routes/users';
-import { NOT_FOUND } from 'utils/errors';
 
 const { PORT = 3000 } = process.env;
 mongoose.set('strictQuery', true);
