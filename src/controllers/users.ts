@@ -1,4 +1,5 @@
 import { Response, Request } from 'express';
+import mongoose from 'mongoose';
 import User from '../models/user';
 
 const getUsers = async (req: Request, res: Response) => {
@@ -21,6 +22,12 @@ const getUserById = async (req: Request, res: Response) => {
     }
     return res.status(200).send(user);
   } catch (error) {
+    if (error instanceof Error && error.name === 'NotFound') {
+      return res.status(404).send({ message: error.message });
+    }
+    if (error instanceof mongoose.Error.CastError) {
+      return res.status(400).send({ message: 'Запрашиваемый пользователь не найден' });
+    }
     res.status(500).send({ message: 'ошибка сервера' });
   }
 };
