@@ -10,7 +10,7 @@ const getCards = async (req: Request, res: Response) => {
     const cards = await Card.find({});
     return res.status(STATUS_OK.code).send(cards);
   } catch (error) {
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -19,7 +19,7 @@ const createCard = async (req: CustomRequest, res: Response) => {
     const NewCard = await Card.create({ ...req.body, owner: req.user?._id });
     return res.status(CREATED.code).send(NewCard);
   } catch (error) {
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -42,7 +42,7 @@ const deleteCard = async (req: Request, res: Response) => {
     if (error instanceof Error && error.name === 'CastError') {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -66,7 +66,7 @@ const likeCard = (req: CustomRequest, res: Response) => {
       if (error instanceof Error && error.name === 'CastError') {
         return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
       }
-      res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+      return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
     });
 };
 
@@ -89,7 +89,7 @@ const dislikeCard = (req: CustomRequest, res: Response) => {
     if (error instanceof Error && error.name === 'CastError') {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   });
 };
 

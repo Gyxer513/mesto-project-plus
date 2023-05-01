@@ -11,7 +11,7 @@ const getUsers = async (req: Request, res: Response) => {
     const users = await User.find({});
     return res.status(STATUS_OK.code).send(users);
   } catch (error) {
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -32,7 +32,7 @@ const getUserById = async (req: Request, res: Response) => {
     if (error instanceof mongoose.Error.CastError) {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -57,7 +57,7 @@ const createUser = async (req: Request, res: Response) => {
     if (error instanceof Error && error.name === 'ValidationError') {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -78,7 +78,7 @@ const updateUser = async (req: CustomRequest, res: Response) => {
     if (error instanceof Error && error.name === 'ValidationError') {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -100,7 +100,7 @@ const updateAvatar = async (req: CustomRequest, res: Response) => {
     if (error instanceof Error && error.name === 'ValidationError') {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
