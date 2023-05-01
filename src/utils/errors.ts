@@ -1,36 +1,36 @@
 const STATUS_OK = {
   code: 200,
-  message: { message: 'message: Status OK' },
+  message: { message: 'Status OK' },
 };
 
 const CREATED = {
   code: 201,
-  message: { message: 'message: Sucsess' },
+  message: { message: 'Sucsess' },
 };
 
 const BAD_REQUEST = {
   code: 400,
-  message: { message: 'message: Bad Request' },
+  message: { message: 'Bad Request' },
 };
 
 const UNAUTHORIZED = {
   code: 401,
-  message: { message: 'message: Login Required' },
+  message: { message: 'Login Required' },
 };
 
 const FORBIDDEN = {
   code: 403,
-  message: { message: 'message: Incorrect Login or Password' },
+  message: { message: 'Incorrect Login or Password' },
 };
 
 const NOT_FOUND = {
   code: 404,
-  message: { message: 'message: Incorrect Data' },
+  message: { message: 'Incorrect Data' },
 };
 
 const SERVER_ERROR = {
   code: 500,
-  message: { message: 'message: Server Error' },
+  message: { message: 'Server Error' },
 };
 
 export {

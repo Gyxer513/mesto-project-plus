@@ -19,7 +19,6 @@ const createCard = async (req: CustomRequest, res: Response) => {
     const { name, link } = req.body;
     const NewCard = await Card.create(
       { name, link, owner: req.user?._id },
-      { runValidations: true },
     );
     return res.status(CREATED.code).send(NewCard);
   } catch (error) {
@@ -43,7 +42,7 @@ const deleteCard = async (req: Request, res: Response) => {
     if (error instanceof Error && error.name === 'NotFound') {
       return res.status(NOT_FOUND.code).send(NOT_FOUND.message);
     }
-    if (error instanceof Error && error.name === 'ValidationError') {
+    if (error instanceof Error && error.name === 'CastError') {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
     return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
