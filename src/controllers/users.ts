@@ -17,8 +17,8 @@ const getUsers = async (req: Request, res: Response) => {
 
 const getUserById = async (req: Request, res: Response) => {
   try {
-    const { Id } = req.params;
-    const user = await User.findById(Id);
+    const { id } = req.params;
+    const user = await User.findById(id);
     if (!user) {
       const error = new Error('Пользователь не найден');
       error.name = 'NotFound';
@@ -43,7 +43,7 @@ const createUser = async (req: Request, res: Response) => {
     } = req.body;
     await User.create({
       name, about, avatar,
-    }, { runValidators: true });
+    });
     return res.status(STATUS_OK.code).send({ message: 'Пользователь создан' });
   } catch (error) {
     if (error instanceof Error && error.name === 'ValidationError') {
@@ -56,7 +56,7 @@ const createUser = async (req: Request, res: Response) => {
 const updateUser = async (req: CustomRequest, res: Response) => {
   try {
     const _id = req.user?._id;
-    const user = await User.findByIdAndUpdate(_id, req.body, { runValidations: true, new: true });
+    const user = await User.findByIdAndUpdate(_id, req.body, { runValidators: true, new: true });
     if (!user) {
       const error = new Error('Пользователь не найден');
       error.name = 'NotFound';
@@ -77,9 +77,9 @@ const updateUser = async (req: CustomRequest, res: Response) => {
 const updateAvatar = async (req: CustomRequest, res: Response) => {
   try {
     const _id = req.user?._id;
-    const NewAvatar = req.body;
+    const NewAvatar = req.body.avatar;
     const user = await
-    User.findByIdAndUpdate(_id, { ...req.body, NewAvatar }, { runValidations: true, new: true });
+    User.findByIdAndUpdate(_id, NewAvatar, { runValidators: true, new: true });
     if (!user) {
       const error = new Error('Пользователь не найден');
       error.name = 'NotFound';
