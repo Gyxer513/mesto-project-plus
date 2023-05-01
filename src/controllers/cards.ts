@@ -16,16 +16,23 @@ const getCards = async (req: Request, res: Response) => {
 
 const createCard = async (req: CustomRequest, res: Response) => {
   try {
-    const NewCard = await Card.create({ ...req.body, owner: req.user?._id });
+    const { name, link } = req.body;
+    const NewCard = await Card.create(
+      { name, link, owner: req.user?._id },
+      { runValidations: true },
+    );
     return res.status(CREATED.code).send(NewCard);
   } catch (error) {
+    if (error instanceof Error && error.name === 'ValidationError') {
+      return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
+    }
     return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
 const deleteCard = async (req: Request, res: Response) => {
   try {
-    const card = await Card.deleteOne({ _id: req.params.cardId });
+    const card = await Card.findByIdAndRemove(req.params.cardId, { runValidations: true });
     if (!card) {
       const error = new Error('Карточка не найдена');
       error.name = 'NotFound';
@@ -37,9 +44,6 @@ const deleteCard = async (req: Request, res: Response) => {
       return res.status(NOT_FOUND.code).send(NOT_FOUND.message);
     }
     if (error instanceof Error && error.name === 'ValidationError') {
-      return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
-    }
-    if (error instanceof Error && error.name === 'CastError') {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
     return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
