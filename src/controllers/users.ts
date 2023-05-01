@@ -43,7 +43,7 @@ const createUser = async (req: Request, res: Response) => {
     } = req.body;
     await User.create({
       name, about, avatar,
-    }, { runValidations: true });
+    }, { runValidators: true });
     return res.status(STATUS_OK.code).send({ message: 'Пользователь создан' });
   } catch (error) {
     if (error instanceof Error && error.name === 'ValidationError') {
