@@ -1,5 +1,6 @@
-import express, { Response, NextFunction } from 'express';
+import express, { Response } from 'express';
 import mongoose from 'mongoose';
+import { login, createUser } from './controllers/users';
 import { CustomRequest } from './utils/types';
 import { NOT_FOUND } from './utils/errors';
 import cardsRouter from './routes/cards';
@@ -13,13 +14,8 @@ const app = express();
 
 app.use(express.json());
 
-app.use((req: CustomRequest, res: Response, next: NextFunction) => {
-  req.user = {
-    _id: '644c9f32ab4f5dd6eaf52ab8', // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
-
-  next();
-});
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);

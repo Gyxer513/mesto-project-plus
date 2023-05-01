@@ -1,7 +1,9 @@
 import { Response, Request } from 'express';
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import {
-  STATUS_OK, BAD_REQUEST, SERVER_ERROR, NOT_FOUND,
+  STATUS_OK, BAD_REQUEST, SERVER_ERROR, NOT_FOUND, UNAUTHORIZED,
 } from '../utils/errors';
 import { CustomRequest } from '../utils/types';
 import User from '../models/user';
@@ -95,6 +97,23 @@ const updateAvatar = async (req: CustomRequest, res: Response) => {
     }
     return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
+};
+
+export const login = (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  User.findOne({ email }).select('+password').then((user) => {
+    if (!user) {
+      return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
+    }
+    bcrypt.compare(password, user.password).then((matched) => {
+      if (!matched) {
+        return res.status(UNAUTHORIZED.code).send(UNAUTHORIZED.message);
+      }
+      const token = jwt.sign({ _id: user._id }, 'some key', { expiresIn: '7d' });
+      return res.cookie('httpOnly', token).status(STATUS_OK.code).send({ token });
+    });
+    return res.status(STATUS_OK.code);
+  }).catch((err) => res.status(401).send({ message: err.message }));
 };
 
 export {
