@@ -11,14 +11,14 @@ const getUsers = async (req: Request, res: Response) => {
     const users = await User.find({});
     return res.status(STATUS_OK.code).send(users);
   } catch (error) {
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
 const getUserById = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
-    const user = await User.findById(userId);
+    const { Id } = req.params;
+    const user = await User.findById(Id);
     if (!user) {
       const error = new Error('Пользователь не найден');
       error.name = 'NotFound';
@@ -32,7 +32,7 @@ const getUserById = async (req: Request, res: Response) => {
     if (error instanceof mongoose.Error.CastError) {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -41,30 +41,22 @@ const createUser = async (req: Request, res: Response) => {
     const {
       name, about, avatar,
     } = req.body;
-    if (!name && !about && !avatar) {
-      const error = new Error('Переданные данные не корректны');
-      error.name = 'CustomValid';
-      throw error;
-    }
     await User.create({
       name, about, avatar,
-    });
+    }, { runValidations: true });
     return res.status(STATUS_OK.code).send({ message: 'Пользователь создан' });
   } catch (error) {
-    if (error instanceof Error && error.name === 'CustomValid') {
-      res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
-    }
     if (error instanceof Error && error.name === 'ValidationError') {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
 const updateUser = async (req: CustomRequest, res: Response) => {
   try {
     const _id = req.user?._id;
-    const user = await User.findByIdAndUpdate(_id, req.body, { new: true });
+    const user = await User.findByIdAndUpdate(_id, req.body, { runValidations: true, new: true });
     if (!user) {
       const error = new Error('Пользователь не найден');
       error.name = 'NotFound';
@@ -78,7 +70,7 @@ const updateUser = async (req: CustomRequest, res: Response) => {
     if (error instanceof Error && error.name === 'ValidationError') {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
@@ -86,7 +78,8 @@ const updateAvatar = async (req: CustomRequest, res: Response) => {
   try {
     const _id = req.user?._id;
     const NewAvatar = req.body;
-    const user = await User.findByIdAndUpdate(_id, { ...req.body, NewAvatar }, { new: true });
+    const user = await
+    User.findByIdAndUpdate(_id, { ...req.body, NewAvatar }, { runValidations: true, new: true });
     if (!user) {
       const error = new Error('Пользователь не найден');
       error.name = 'NotFound';
@@ -100,7 +93,7 @@ const updateAvatar = async (req: CustomRequest, res: Response) => {
     if (error instanceof Error && error.name === 'ValidationError') {
       return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
     }
-    res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
   }
 };
 
