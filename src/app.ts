@@ -8,7 +8,7 @@ import cardsRouter from './routes/cards';
 import usersRouter from './routes/users';
 import auth from './middlewares/auth';
 import { signUpValidation, signInValidation } from './validator/validators';
-import { requestLogger, errorLogger } from './middlewares/logger'; 
+import { requestLogger, errorLogger } from './middlewares/logger';
 import errorHandler from './middlewares/errorHandler';
 
 const { PORT = 3000 } = process.env;
@@ -31,13 +31,11 @@ app.use('/cards', cardsRouter);
 app.use(errorLogger); // подключаем логер ошибок
 
 app.use(errors()); // обработчик ошибок celebrate
-app.use(errorHandler)
+app.use(errorHandler);
 
 app.use((req: CustomRequest, res: Response) => {
   res.status(NOT_FOUND.code).send(NOT_FOUND.message);
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); // eslint-disable-line

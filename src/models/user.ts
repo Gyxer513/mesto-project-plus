@@ -3,7 +3,6 @@ import {
   DEFAULT_AVATAR, DEFAULT_NAME, DEFAULT_ABOUT_DATA, urlRegex, emailRegex,
 } from '../utils/constants';
 
-
 export type TUser = {
   name: string;
   about: string;
