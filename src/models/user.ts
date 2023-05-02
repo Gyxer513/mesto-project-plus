@@ -1,7 +1,8 @@
 import { Schema, model } from 'mongoose';
 import {
-  DEFAULT_AVATAR, DEFAULT_NAME, DEFAULT_ABOUT_DATA, urlRegex,
+  DEFAULT_AVATAR, DEFAULT_NAME, DEFAULT_ABOUT_DATA, urlRegex, emailRegex,
 } from '../utils/constants';
+
 
 export type TUser = {
   name: string;
@@ -31,12 +32,17 @@ const userSchema = new Schema<TUser>({
     default: DEFAULT_AVATAR,
     validate: {
       validator: (value: string) => urlRegex.test(value),
+      message: 'Wrong Link',
     },
   },
   email: {
     type: String,
     required: true,
     unique: true,
+    validate: {
+      validator: (value: string) => emailRegex.test(value),
+      message: 'Wrong Email',
+    },
   },
   password: {
     type: String,
