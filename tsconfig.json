@@ -19,7 +19,7 @@
   },
   "include": [
     "src/**/*.ts"
-, "src/app.ts"  ],
+, "src/app.ts", "src/errors/badRequest.ts"  ],
   "exclude": [
     "node_modules"
   ],
