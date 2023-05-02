@@ -40,7 +40,7 @@ const getUserById = async (req: Request, res: Response) => {
 
 const createUser = (req: Request, res: Response, next: NextFunction) => {
   const {
-    name, password, avatar, about, email
+    name, password, avatar, about, email,
   } = req.body;
   bcrypt.hash(password, 10).then((hash) => {
     User.create({
