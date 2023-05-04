@@ -1,9 +1,8 @@
-import express, { Response } from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
 import { errors } from 'celebrate';
+import NotFoundError from './utils/errors/NotFoundError';
 import { login, createUser } from './controllers/users';
-import { CustomRequest } from './utils/types';
-import { NOT_FOUND } from './utils/errors';
 import cardsRouter from './routes/cards';
 import usersRouter from './routes/users';
 import auth from './middlewares/auth';
@@ -28,14 +27,14 @@ app.use(auth);
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
 
+app.use(() => {
+  throw new NotFoundError('Ошибка 404');
+});
+
 app.use(errorLogger); // подключаем логер ошибок
 
 app.use(errors()); // обработчик ошибок celebrate
 app.use(errorHandler);
-
-app.use((req: CustomRequest, res: Response) => {
-  res.status(NOT_FOUND.code).send(NOT_FOUND.message);
-});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); // eslint-disable-line

@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from 'express';
 import {
   STATUS_OK, CREATED,
-} from '../utils/errors';
+} from '../utils/codes';
 import { CustomRequest } from '../utils/types';
 import Card from '../models/cards';
 import NotFoundError from '../utils/errors/NotFoundError';
@@ -34,12 +34,13 @@ const createCard = async (req: CustomRequest, res: Response, next: NextFunction)
 
 const deleteCard = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const card = await Card.findByIdAndRemove(req.params.cardId, { runValidations: true });
+    const card = await Card.findById(req.params.cardId, { runValidations: true });
     if (!card) {
       throw new NotFoundError('Пользователь не найден');
     } else if (card.owner.toString() !== req.body!._id.toString()) {
       throw new PermissionError('Можно удалять только свои карточки');
     } else {
+      card.delete();
       return res.status(STATUS_OK.code).send({ message: 'карточка удалена' });
     }
   } catch (error) {

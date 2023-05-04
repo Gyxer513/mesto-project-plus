@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { CustomError } from '../utils/types';
 
 const errorHandler = (
   err: CustomError,
   req: Request,
   res: Response,
+  next: NextFunction,
 ) => {
   const { message, statusCode = 500 } = err;
 
@@ -12,6 +13,7 @@ const errorHandler = (
     .send({
       message: statusCode === 500 ? 'Ошибка сервера' : message,
     });
+  next();
 };
 
 export default errorHandler;

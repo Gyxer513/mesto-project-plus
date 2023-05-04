@@ -1,4 +1,5 @@
 import { Schema, ObjectId, model } from 'mongoose';
+import validator from 'validator';
 
 export type TCard = {
   name: string;
@@ -17,6 +18,10 @@ const cardSchema = new Schema<TCard>({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (value: string) => validator.isURL(value),
+      message: 'Wrong Link',
+    },
   },
   owner: {
     type: Schema.Types.ObjectId,

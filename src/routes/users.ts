@@ -2,15 +2,16 @@ import { Router } from 'express';
 import {
   getUsers, createUser, updateUser, updateAvatar, getUserById,
 } from '../controllers/users';
+import { validateRquestUser, validateCreateUser } from '../validator/validators';
 
 const usersRouter = Router();
 
 usersRouter
   .get('/', getUsers)
-  .get('/:id', getUserById)
-  .post('/', createUser)
+  .get('/me', getUserById)
+  .get('/:id', validateRquestUser, getUserById)
+  .post('/', validateCreateUser, createUser)
   .patch('/me', updateUser)
-  .patch('/me/avatar', updateAvatar)
-  .get('/me', getUserById);
+  .patch('/me/avatar', updateAvatar);
 
 export default usersRouter;
