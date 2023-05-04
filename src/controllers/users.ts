@@ -1,40 +1,35 @@
 import { Response, Request, NextFunction } from 'express';
-import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import {
-  STATUS_OK, BAD_REQUEST, SERVER_ERROR, NOT_FOUND, UNAUTHORIZED,
-} from '../utils/errors';
+  STATUS_OK,
+} from '../utils/codes';
 import { CustomRequest } from '../utils/types';
 import User from '../models/user';
+import NotFoundError from '../utils/errors/NotFoundError';
+import BadRequestError from '../utils/errors/BadRequestError';
+import PermissionError from '../utils/errors/PermissionError';
+import RequestError from '../utils/errors/RequestError';
 
-const getUsers = async (req: Request, res: Response) => {
+const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await User.find({});
     return res.status(STATUS_OK.code).send(users);
   } catch (error) {
-    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return next(error);
   }
 };
 
-const getUserById = async (req: Request, res: Response) => {
+const getUserById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
     if (!user) {
-      const error = new Error('Пользователь не найден');
-      error.name = 'NotFound';
-      throw error;
+      throw new NotFoundError('Пользователь не найден');
     }
     return res.status(STATUS_OK.code).send(user);
   } catch (error) {
-    if (error instanceof Error && error.name === 'NotFound') {
-      return res.status(NOT_FOUND.code).send(NOT_FOUND.message);
-    }
-    if (error instanceof mongoose.Error.CastError) {
-      return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
-    }
-    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return next(error);
   }
 };
 
@@ -56,91 +51,59 @@ const createUser = (req: Request, res: Response, next: NextFunction) => {
           token: jwt.sign({ _id: user._id }, 'some key', { expiresIn: '7d' }),
         });
       })
-      .catch(next);
-  }).catch(next);
+      .catch((error) => {
+        if (error.code === 11000) {
+          return next(new RequestError('Пользователь с таким email уже зарегистрирован'));
+        } return next(error);
+      });
+  });
 };
 
-const updateUser = async (req: CustomRequest, res: Response) => {
+const updateUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     const _id = req.user?._id;
     const user = await User.findByIdAndUpdate(_id, req.body, { runValidators: true, new: true });
     if (!user) {
-      const error = new Error('Пользователь не найден');
-      error.name = 'NotFound';
-      throw error;
+      throw new NotFoundError('Пользователь не найден');
     }
     return res.status(STATUS_OK.code).send(user);
   } catch (error) {
-    if (error instanceof Error && error.name === 'NotFound') {
-      return res.status(NOT_FOUND.code).send(NOT_FOUND.message);
-    }
-    if (error instanceof Error && error.name === 'ValidationError') {
-      return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
-    }
-    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return next(error);
   }
 };
 
-const updateAvatar = async (req: CustomRequest, res: Response) => {
+const updateAvatar = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     const _id = req.user?._id;
     const NewAvatar = req.body.avatar;
     const user = await
     User.findByIdAndUpdate(_id, NewAvatar, { runValidators: true, new: true });
     if (!user) {
-      const error = new Error('Пользователь не найден');
-      error.name = 'NotFound';
-      throw error;
+      throw new NotFoundError('Пользователь не найден');
     }
     return res.status(STATUS_OK.code).send(user);
   } catch (error) {
-    if (error instanceof Error && error.name === 'NotFound') {
-      return res.status(NOT_FOUND.code).send(NOT_FOUND.message);
-    }
-    if (error instanceof Error && error.name === 'ValidationError') {
-      return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
-    }
-    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return next(error);
   }
 };
 
-const login = (req: Request, res: Response) => {
+const login = (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password').then((user) => {
     if (!user) {
-      return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
+      throw new BadRequestError('Неверные данные пользователя');
     }
     bcrypt.compare(password, user.password).then((matched) => {
       if (!matched) {
-        return res.status(UNAUTHORIZED.code).send(UNAUTHORIZED.message);
+        throw new PermissionError('Неверный пароль');
       }
       const token = jwt.sign({ _id: user._id }, 'some key', { expiresIn: '7d' });
       return res.cookie('httpOnly', token).status(STATUS_OK.code).send({ token });
     });
     return res.status(STATUS_OK.code);
-  }).catch((err) => res.status(UNAUTHORIZED.code).send({ message: err.message }));
-};
-
-const getUser = async (req: CustomRequest, res: Response) => {
-  try {
-    const user = User.findOne({ _id: req.user?._id });
-    if (!user) {
-      const error = new Error('Пользователь не найден');
-      error.name = 'NotFound';
-      throw error;
-    }
-    return res.send(user);
-  } catch (error) {
-    if (error instanceof Error && error.name === 'NotFound') {
-      return res.status(NOT_FOUND.code).send(NOT_FOUND.message);
-    }
-    if (error instanceof Error && error.name === 'ValidationError') {
-      return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
-    }
-    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
-  }
+  }).catch(next);
 };
 
 export {
-  getUsers, getUserById, createUser, updateUser, updateAvatar, login, getUser,
+  getUsers, getUserById, createUser, updateUser, updateAvatar, login,
 };

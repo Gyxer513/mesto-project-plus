@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
+import validator from 'validator';
 import {
-  DEFAULT_AVATAR, DEFAULT_NAME, DEFAULT_ABOUT_DATA, urlRegex, emailRegex,
+  DEFAULT_AVATAR, DEFAULT_NAME, DEFAULT_ABOUT_DATA,
 } from '../utils/constants';
 
 export type TUser = {
@@ -30,7 +31,7 @@ const userSchema = new Schema<TUser>({
     maxlength: [200, 'Поле должно содержать менее 200 символов'],
     default: DEFAULT_AVATAR,
     validate: {
-      validator: (value: string) => urlRegex.test(value),
+      validator: (value: string) => validator.isURL(value),
       message: 'Wrong Link',
     },
   },
@@ -39,7 +40,7 @@ const userSchema = new Schema<TUser>({
     required: true,
     unique: true,
     validate: {
-      validator: (value: string) => emailRegex.test(value),
+      validator: (value: string) => validator.isEmail(value),
       message: 'Wrong Email',
     },
   },
