@@ -7,6 +7,7 @@ import {
 } from '../utils/errors';
 import { CustomRequest } from '../utils/types';
 import User from '../models/user';
+import NotFoundError from '../utils/errors/NotFoundError';
 
 const getUsers = async (req: Request, res: Response) => {
   try {
@@ -17,24 +18,16 @@ const getUsers = async (req: Request, res: Response) => {
   }
 };
 
-const getUserById = async (req: Request, res: Response) => {
+const getUserById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
     if (!user) {
-      const error = new Error('Пользователь не найден');
-      error.name = 'NotFound';
-      throw error;
+      throw new NotFoundError('Пользователь не найден');
     }
     return res.status(STATUS_OK.code).send(user);
   } catch (error) {
-    if (error instanceof Error && error.name === 'NotFound') {
-      return res.status(NOT_FOUND.code).send(NOT_FOUND.message);
-    }
-    if (error instanceof mongoose.Error.CastError) {
-      return res.status(BAD_REQUEST.code).send(BAD_REQUEST.message);
-    }
-    return res.status(SERVER_ERROR.code).send(SERVER_ERROR.message);
+    return next(error)
   }
 };
 
