@@ -26,21 +26,21 @@ const createCard = async (req: CustomRequest, res: Response, next: NextFunction)
     return res.status(CREATED.code).send(NewCard);
   } catch (error) {
     if (error instanceof Error && error.name === 'ValidationError') {
-      throw new BadRequestError(error.message);
+      next(new BadRequestError(error.message));
     }
     return next(error);
   }
 };
 
-const deleteCard = async (req: Request, res: Response, next: NextFunction) => {
+const deleteCard = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
-    const card = await Card.findById(req.params.cardId, { runValidations: true });
+    const card = await Card.findById(req.params.cardId);
     if (!card) {
       throw new NotFoundError('Пользователь не найден');
-    } else if (card.owner.toString() !== req.body!._id.toString()) {
+    } else if (card.owner.toString() !== req.user!._id.toString()) {
       throw new PermissionError('Можно удалять только свои карточки');
     } else {
-      card.delete();
+      await card.delete();
       return res.status(STATUS_OK.code).send({ message: 'карточка удалена' });
     }
   } catch (error) {
