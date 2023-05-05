@@ -8,8 +8,8 @@ import { CustomRequest } from '../utils/types';
 import User from '../models/user';
 import NotFoundError from '../utils/errors/NotFoundError';
 import BadRequestError from '../utils/errors/BadRequestError';
-import PermissionError from '../utils/errors/PermissionError';
 import RequestError from '../utils/errors/RequestError';
+import AuthorizationError from '../utils/errors/AutorizationError';
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -52,11 +52,14 @@ const createUser = (req: Request, res: Response, next: NextFunction) => {
         });
       })
       .catch((error) => {
+        if (error instanceof Error && error.name === 'ValidationError') {
+          return next(new BadRequestError(error.message));
+        }
         if (error.code === 11000) {
           return next(new RequestError('Пользователь с таким email уже зарегистрирован'));
         } return next(error);
       });
-  });
+  }).catch(next);
 };
 
 const updateUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -68,6 +71,9 @@ const updateUser = async (req: CustomRequest, res: Response, next: NextFunction)
     }
     return res.status(STATUS_OK.code).send(user);
   } catch (error) {
+    if (error instanceof Error && error.name === 'ValidationError') {
+      return next(new BadRequestError(error.message));
+    }
     return next(error);
   }
 };
@@ -83,6 +89,9 @@ const updateAvatar = async (req: CustomRequest, res: Response, next: NextFunctio
     }
     return res.status(STATUS_OK.code).send(user);
   } catch (error) {
+    if (error instanceof Error && error.name === 'ValidationError') {
+      return next(new BadRequestError(error.message));
+    }
     return next(error);
   }
 };
@@ -91,19 +100,28 @@ const login = (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password').then((user) => {
     if (!user) {
-      throw new BadRequestError('Неверные данные пользователя');
+      throw new AuthorizationError('Неверные данные пользователя');
     }
-    bcrypt.compare(password, user.password).then((matched) => {
+    return bcrypt.compare(password, user.password).then((matched) => {
       if (!matched) {
-        throw new PermissionError('Неверный пароль');
+        throw new AuthorizationError('Неверный пароль');
       }
       const token = jwt.sign({ _id: user._id }, 'some key', { expiresIn: '7d' });
       return res.cookie('httpOnly', token).status(STATUS_OK.code).send({ token });
     });
-    return res.status(STATUS_OK.code);
   }).catch(next);
 };
 
+const getCurrentUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user;
+    const user = await User.findById(userId);
+    return res.status(STATUS_OK.code).send(user);
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export {
-  getUsers, getUserById, createUser, updateUser, updateAvatar, login,
+  getUsers, getUserById, createUser, updateUser, updateAvatar, login, getCurrentUser,
 };
